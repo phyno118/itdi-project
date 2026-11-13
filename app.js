@@ -56,6 +56,8 @@ const number = new Intl.NumberFormat("ko-KR");
 const draftKey = "itdi-preview-projects";
 let draftProjects = loadDrafts();
 let matchBrief = "";
+const demoMessages = new Map();
+const demoOrders = new Set();
 
 function loadDrafts() {
   try {
@@ -126,7 +128,7 @@ function catalog(type, category = "") {
     '<p class="notice">디자인 초안에 사용한 예시 데이터예요.</p><div class="filters">' +
     '<label class="field">검색<input type="search" id="catalog-search" placeholder="이름, 분야, 작업명 검색"></label>' +
     '<label class="field">분야<select id="catalog-category">' + categoryOptions(category) + '</select></label></div>' +
-    '<div id="catalog-results" aria-live="polite"></div>';
+    '<div id="catalog-results" aria-live="polite" class="' + (type === "portfolio" ? "portfolio-gallery" : "") + '"></div>';
   const search = view.querySelector("#catalog-search");
   const select = view.querySelector("#catalog-category");
   const results = view.querySelector("#catalog-results");
@@ -149,9 +151,16 @@ function catalog(type, category = "") {
 function creativeDetail(type, id) {
   const person = creatives.find(item => item.id === id);
   if (!person) return missing();
+  if (type === "work") {
+    view.innerHTML = heading("PORTFOLIO", person.title, person.name + " · " + categoryName(person.category), "portfolio", "포트폴리오") +
+      '<div class="work-feature">' + art(person) + '</div><div class="detail-layout work-details">' +
+      '<section class="panel"><h2>프로젝트 소개</h2><p>' + person.intro + '</p></section>' +
+      '<section class="panel"><h2>작업 범위</h2><p>' + person.scope + '</p><div class="actions">' +
+      action("#designer/" + id, "프로필 보기", "outline") + action("#chat/" + id, "디자이너와 채팅") + '</div></section></div>';
+    return;
+  }
   const settings = {
     designer:["DESIGNER PROFILE",person.name,person.role + " · " + categoryName(person.category),"designers","디자이너 찾기"],
-    work:["PORTFOLIO",person.title,person.name + " · " + categoryName(person.category),"portfolio","포트폴리오"],
     service:["DESIGN SERVICE",person.service,person.name + " · " + categoryName(person.category),"services","서비스 찾기"]
   };
   view.innerHTML = heading(...settings[type]) + '<div class="detail-layout"><div>' + art(person) +
@@ -162,9 +171,9 @@ function creativeDetail(type, id) {
     '<section class="panel"><h2>' + (type === "service" ? "문의와 견적" : "제공 서비스") + '</h2><p>' + person.service +
     '</p><dl class="summary"><div><dt>예시 가격</dt><dd>' + person.price + '</dd></div><div><dt>예상 기간</dt><dd>' + person.duration +
     '</dd></div></dl><div class="actions">' +
-    action("#inquiry/" + id,"문의하기") +
-    (type === "service" ? action("#inquiry/" + id + "/quote","견적 요청","outline") :
-      action("#" + (type === "work" ? "designer" : "service") + "/" + id,type === "work" ? "프로필 보기" : "서비스 보기","outline")) +
+    action("#chat/" + id,"문의하기") +
+    (type === "service" ? action("#quote/" + id,"견적 보기","outline") :
+      action("#service/" + id,"서비스 보기","outline")) +
     '</div></section></div></div>';
 }
 
@@ -251,12 +260,28 @@ function projectList(own) {
   view.innerHTML = heading("PROJECTS",own ? "내 프로젝트" : "프로젝트 찾기",
     own ? "이 탭에서 등록한 의뢰와 제안을 확인해요." : "모집 중인 디자인 프로젝트의 조건을 살펴보고 제안을 준비해요.") +
     '<div class="actions">' + action("#request","프로젝트 의뢰") + action(own ? "#projects" : "#my-projects",own ? "프로젝트 찾기" : "내 프로젝트","outline") +
-    '</div><div class="project-list" style="margin-top:18px">' + (projects.length ? projects.map(project =>
+    '</div><div class="filters project-filters"><label class="field">프로젝트 검색<input id="project-search" type="search" placeholder="제목 또는 작업 내용"></label>' +
+    '<label class="field">디자인 분야<select id="project-category">' + categoryOptions() + '</select></label></div>' +
+    '<div class="project-list" id="project-results" aria-live="polite"></div>';
+  const search = view.querySelector("#project-search");
+  const category = view.querySelector("#project-category");
+  const results = view.querySelector("#project-results");
+  function filter() {
+    const query = search.value.trim().toLowerCase();
+    const matches = projects.filter(project =>
+      (category.value === "" || Number(category.value) === project.category) &&
+      (project.title + " " + project.description).toLowerCase().includes(query));
+    results.innerHTML = matches.length ? matches.map(project =>
       '<article class="panel project-row"><div><span class="tag">' + (project.selected !== undefined ? "디자이너 선정" : "모집 중") +
       ' · ' + categoryName(project.category) + '</span><h2>' + escapeHtml(project.title) + '</h2><p>' +
       projectBudget(project) + (project.date ? ' · 희망 납품일 ' + escapeHtml(project.date) : ' · 예시 의뢰') +
       '</p></div>' + action("#project/" + escapeHtml(project.id),"상세 보기","outline") + '</article>').join("") :
-      '<section class="empty"><h2>등록한 프로젝트가 없어요</h2><p>프로젝트 의뢰 양식에서 예시 의뢰를 만들어보세요.</p></section>') + '</div>';
+      '<section class="empty"><h2>' + (projects.length ? '조건에 맞는 프로젝트가 없어요' : '등록한 프로젝트가 없어요') +
+      '</h2><p>' + (projects.length ? '검색어나 분야를 바꿔보세요.' : '프로젝트 의뢰 양식에서 예시 의뢰를 만들어보세요.') + '</p></section>';
+  }
+  search.addEventListener("input", filter);
+  category.addEventListener("change", filter);
+  filter();
 }
 
 function projectDetail(id) {
@@ -313,6 +338,72 @@ function inquiry(id, mode) {
       '<section class="panel"><h2>작성한 내용</h2><p class="project-description">' + escapeHtml(message) + '</p></section>';
     view.querySelector("h1").focus();
   });
+}
+
+function conversation(person) {
+  if (!demoMessages.has(person.id)) {
+    demoMessages.set(person.id, ["안녕하세요. 필요한 작업과 희망 일정을 알려주시면 함께 살펴볼게요."]);
+  }
+  return demoMessages.get(person.id);
+}
+
+function tradePage(type, id) {
+  const person = creatives.find(item => item.id === (id || creatives[0].id));
+  if (!person) return missing();
+  const key = person.id;
+  const titles = {chat:"채팅", quote:"견적서", order:"주문 상세"};
+  const tabs = Object.entries(titles).map(([route, title]) =>
+    '<a href="#' + route + '/' + key + '"' + (route === type ? ' aria-current="page"' : '') + '>' + title + '</a>').join("");
+  view.innerHTML = heading("", titles[type], person.name + " · " + person.service, "designer/" + key, "디자이너 프로필") +
+    '<p class="notice">검토용 예시 화면입니다. 메시지와 주문은 새로고침 전까지 유지돼요.</p>' +
+    '<nav class="trade-tabs" aria-label="거래 화면">' + tabs + '</nav><div class="detail-layout">' +
+    '<section class="panel trade-content"></section><aside class="panel"><h2>디자이너</h2><p>' + person.name +
+    '</p><p>' + categoryName(person.category) + '</p><div class="actions">' + action("#work/" + key, "작업사례 보기", "outline") + '</div></aside></div>';
+  const panel = view.querySelector(".trade-content");
+  if (type === "chat") {
+    panel.innerHTML = '<label class="field">대화 상대<select id="chat-designer">' + creatives.map(item =>
+      '<option value="' + item.id + '"' + (item.id === key ? " selected" : "") + '>' + item.name + '</option>').join("") +
+      '</select></label><ol class="messages" aria-label="대화 내역" aria-live="polite"></ol>' +
+      '<form id="chat-form" class="form-fields"><label class="field">메시지<textarea name="message" rows="2" maxlength="800" required></textarea></label>' +
+      '<div class="actions"><button class="button primary" type="submit">보내기</button>' + action("#quote/" + key, "예시 견적서 보기", "outline") + '</div></form>';
+    const log = panel.querySelector(".messages");
+    const messages = conversation(person);
+    function renderMessages() {
+      log.innerHTML = messages.map((message, index) =>
+        '<li class="' + (index ? "outgoing" : "") + '"><strong>' + (index ? "나" : person.name) +
+        '</strong><p>' + escapeHtml(message) + '</p></li>').join("");
+      log.scrollTop = log.scrollHeight;
+    }
+    panel.querySelector("#chat-designer").addEventListener("change", event => { location.hash = "#chat/" + event.target.value; });
+    panel.querySelector("#chat-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const input = event.currentTarget.elements.message;
+      const message = input.value.trim();
+      if (!message) return;
+      messages.push(message);
+      input.value = "";
+      renderMessages();
+      input.focus();
+    });
+    renderMessages();
+    return;
+  }
+  const summary = '<dl class="summary"><div><dt>작업 범위</dt><dd>' + person.scope + '</dd></div><div><dt>예시 금액</dt><dd>' +
+    person.price + '</dd></div><div><dt>예상 기간</dt><dd>' + person.duration + '</dd></div></dl>';
+  if (type === "quote") {
+    panel.innerHTML = '<h2>작업 조건</h2>' + summary + '<div class="actions">' +
+      '<button class="button primary" type="button" id="quote-accept">' + (demoOrders.has(key) ? "주문 보기" : "예시 견적 수락") + '</button>' +
+      action("#chat/" + key, "채팅으로 문의", "outline") +
+      action("#inquiry/" + key + "/quote", "맞춤 견적 요청", "outline") + '</div>';
+    panel.querySelector("#quote-accept").addEventListener("click", () => {
+      demoOrders.add(key);
+      location.hash = "#order/" + key;
+    });
+    return;
+  }
+  panel.innerHTML = '<h2>' + (demoOrders.has(key) ? "작업 대기" : "예시 주문") + '</h2>' +
+    '<ol class="order-progress" aria-label="주문 진행 단계"><li>견적 수락</li><li aria-current="step">작업 대기</li><li>납품</li><li>구매확정</li></ol>' +
+    summary + '<div class="actions">' + action("#chat/" + key, "대화 보기") + action("#quote/" + key, "견적서 보기", "outline") + '</div>';
 }
 
 function account(type) {
@@ -374,6 +465,7 @@ function route(initial = false) {
     else if (name === "projects" || name === "my-projects") projectList(name === "my-projects");
     else if (name === "project") projectDetail(id);
     else if (name === "inquiry") inquiry(id,mode);
+    else if (["chat","quote","order"].includes(name)) tradePage(name,id);
     else if (name === "login" || name === "signup") account(name);
     else if (name === "info") info(id);
     else if (name === "registered" && draftProjects.some(project => project.id === id)) {

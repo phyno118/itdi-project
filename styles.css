@@ -331,3 +331,18 @@ h1, h2, h3 { line-height: 1.28; letter-spacing: -.038em; }
   .steps li { padding-top: 18px; }
   .faq summary { padding-block: clamp(16px, 2.2vh, 21px); }
 }
+.portfolio-gallery .work-art { aspect-ratio: 4 / 3; }
+.work-feature { max-width: 960px; }
+.work-feature .work-art { border-radius: var(--radius); aspect-ratio: 2 / 1; }
+.work-details, .project-filters { margin-top: 20px; }
+.trade-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.trade-tabs a { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); font-size: 14px; font-weight: 700; }
+.trade-tabs a[aria-current] { background: var(--brand-surface); color: var(--brand-text); }
+.messages { display: grid; align-content: start; gap: 12px; list-style: none; min-height: 190px; max-height: 340px; overflow: auto; margin: 14px 0; padding: 14px; border-radius: var(--radius); background: var(--brand-surface); }
+.messages li { justify-self: start; max-width: 85%; border-radius: 14px; padding: 9px 13px; background: var(--white); overflow-wrap: anywhere; }
+.messages li.outgoing { justify-self: end; background: #eee9fb; }
+.messages strong { font-size: 12px; }
+.messages p { white-space: pre-wrap; }
+.order-progress { display: flex; flex-wrap: wrap; list-style: none; gap: 8px; margin: 12px 0 18px; padding: 0; }
+.order-progress li { border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; font-size: 13px; }
+.order-progress li[aria-current] { background: var(--brand-surface); color: var(--brand-text); font-weight: 700; }
