@@ -58,6 +58,53 @@ let draftProjects = loadDrafts();
 let matchBrief = "";
 const demoMessages = new Map();
 const demoOrders = new Set();
+const savedWorkKey = "itdi-saved-portfolio";
+let savedWorks = readSavedWorks();
+
+function readSavedWorks() {
+  try {
+    const ids = JSON.parse(localStorage.getItem(savedWorkKey) || "[]");
+    return new Set(Array.isArray(ids) ? ids.filter(id => creatives.some(person => person.id === id)) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function updateSaveButtons() {
+  view.querySelectorAll("[data-save-work]").forEach(button => {
+    const person = creatives.find(item => item.id === button.dataset.saveWork);
+    const saved = savedWorks.has(person.id);
+    button.setAttribute("aria-pressed", String(saved));
+    button.setAttribute("aria-label", person.title + (saved ? " 저장 취소" : " 저장"));
+    button.title = saved ? "저장 취소" : "작업 저장";
+  });
+}
+
+view.addEventListener("click", event => {
+  const button = event.target.closest("[data-save-work]");
+  if (!button) return;
+  const id = button.dataset.saveWork;
+  if (!creatives.some(person => person.id === id)) return;
+  savedWorks = readSavedWorks();
+  const saved = !savedWorks.has(id);
+  if (saved) savedWorks.add(id);
+  else savedWorks.delete(id);
+  let message = saved ? "작업을 저장했어요." : "저장을 취소했어요.";
+  try {
+    localStorage.setItem(savedWorkKey, JSON.stringify([...savedWorks]));
+  } catch {
+    message = "브라우저 저장 공간을 사용할 수 없어 이번 화면에서만 표시돼요.";
+  }
+  updateSaveButtons();
+  announce(message);
+});
+
+window.addEventListener("storage", event => {
+  if (event.key === savedWorkKey || event.key === null) {
+    savedWorks = readSavedWorks();
+    updateSaveButtons();
+  }
+});
 
 function loadDrafts() {
   try {
@@ -108,10 +155,14 @@ function art(person) {
 
 function creativeCard(person, type) {
   if (type === "portfolio") {
-    return '<article class="card portfolio-work"><a class="portfolio-image-link" href="#work/' + person.id +
-      '" aria-label="' + person.title + ' 작업사례 보기">' + art(person) + '</a><div class="card-body">' +
+    return '<article class="card portfolio-work"><div class="portfolio-cover"><a class="portfolio-image-link" href="#work/' + person.id +
+      '" aria-label="' + person.title + ' 작업사례 보기">' + art(person) + '</a>' +
+      '<button class="save-work" type="button" data-save-work="' + person.id + '" aria-pressed="' + savedWorks.has(person.id) +
+      '" aria-label="' + person.title + (savedWorks.has(person.id) ? ' 저장 취소' : ' 저장') + '" title="' + (savedWorks.has(person.id) ? '저장 취소' : '작업 저장') + '">' +
+      '<svg viewBox="0 0 24 24" width="25" height="25" aria-hidden="true"><path d="M6 3.5h12a1 1 0 0 1 1 1v16l-7-4.5L5 20.5v-16a1 1 0 0 1 1-1Z"/></svg></button></div><div class="card-body">' +
       '<span class="tag">' + categoryName(person.category) + '</span><h3><a href="#work/' + person.id + '">' +
-      person.title + '</a></h3><p class="portfolio-author"><span aria-hidden="true">' + person.name.slice(0,1) +
+      person.title + '</a></h3><p class="portfolio-author"><span class="portfolio-avatar avatar-' + person.art + '" aria-hidden="true">' +
+      '<span class="avatar-letter">' + person.name.slice(0,1) + '</span><span class="avatar-smile"></span>' +
       '</span>' + person.name + '</p><p class="visually-hidden">' + person.scope + '</p></div></article>';
   }
   const settings = {
@@ -127,6 +178,7 @@ function creativeCard(person, type) {
 }
 
 function catalog(type, category = "") {
+  if (type === "portfolio") savedWorks = readSavedWorks();
   const content = {
     services:["SERVICES","서비스 찾기","필요한 작업과 조건을 비교해보세요."],
     designers:["DESIGNERS","디자이너 찾기","전문 분야와 대표 작업을 살펴보세요."],
