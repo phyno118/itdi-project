@@ -501,9 +501,11 @@ function route(initial = false) {
   updateAiReturn();
 }
 
-document.querySelector("#category-grid").innerHTML = categories.map(([label, path], index) =>
-  '<a class="category" href="#services/' + index + '"><span class="cat-icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="' +
-  path + '"/></svg></span><span>' + label + '</span></a>').join("");
+document.querySelector("#category-grid").innerHTML = categories.map(([label], index) =>
+  '<a class="category" href="#services/' + index + '"><span class="cat-icon">' +
+  categoryIllustration(index) + '</span><span>' + label + '</span></a>').join("") +
+  '<a class="category category-all" href="#services"><span class="cat-icon"><svg viewBox="0 0 96 96" aria-hidden="true" focusable="false">' +
+  '<g fill="none" stroke="currentColor" stroke-width="5"><rect x="23" y="23" width="20" height="20" rx="6"/><rect x="53" y="23" width="20" height="20" rx="6"/><rect x="23" y="53" width="20" height="20" rx="6"/><rect x="53" y="53" width="20" height="20" rx="6"/></g></svg></span><span>전체보기</span></a>';
 document.querySelector("#featured-grid").innerHTML = creatives.map(person => creativeCard(person,"designers")).join("");
 menu.addEventListener("click", () => menu.setAttribute("aria-expanded",String(navigation.classList.toggle("open"))));
 navigation.addEventListener("click", event => { if (event.target.closest("a")) closeMenu(); });
