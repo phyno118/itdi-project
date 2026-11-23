@@ -229,11 +229,42 @@ function creativeDetail(type, id) {
   const person = creatives.find(item => item.id === id);
   if (!person) return missing();
   if (type === "work") {
-    view.innerHTML = heading("PORTFOLIO", person.title, person.name + " · " + categoryName(person.category), "portfolio", "포트폴리오") +
-      '<div class="work-feature">' + art(person) + '</div><div class="detail-layout work-details">' +
-      '<section class="panel"><h2>프로젝트 소개</h2><p>' + person.intro + '</p></section>' +
-      '<section class="panel"><h2>작업 범위</h2><p>' + person.scope + '</p><div class="actions">' +
-      action("#designer/" + id, "프로필 보기", "outline") + action("#chat/" + id, "디자이너와 채팅") + '</div></section></div>';
+    const palettes = {
+      coffee:[["포레스트","#43573D"],["세이지","#B1BE9F"],["크림","#F3EBDD"]],
+      poster:[["코랄","#E8AD90"],["테라코타","#AB4C38"],["페이퍼","#F8E6CE"]],
+      interface:[["라벤더","#7B89B5"],["리프","#D6DFC2"],["아이보리","#F4F3EB"]]
+    };
+    const outputs = person.scope.split(" · ");
+    view.innerHTML = '<article class="case-study"><header class="case-heading">' +
+      '<a class="back" href="#portfolio">← 포트폴리오</a><div class="case-title-row"><div><p class="eyebrow">' +
+      categoryName(person.category) + '</p><h1 tabindex="-1">' + person.title + '</h1><span class="tag">예시 프로젝트</span></div>' +
+      '<div class="case-designer"><p class="portfolio-author"><span class="portfolio-avatar avatar-' + person.art + '" aria-hidden="true">' +
+      '<span class="avatar-letter">' + person.name.slice(0,1) + '</span><span class="avatar-smile"></span></span>' +
+      person.name + '</p>' + action("#designer/" + id,"프로필 보기","outline") + '</div></div></header>' +
+      '<div class="work-feature case-hero">' + art(person) + '</div>' +
+      '<dl class="case-facts"><div><dt>디자이너</dt><dd>' + person.name + '</dd></div><div><dt>디자인 분야</dt><dd>' +
+      categoryName(person.category) + '</dd></div><div><dt>작업 범위</dt><dd>' + person.scope + '</dd></div></dl>' +
+      '<div class="case-layout"><nav class="case-nav" aria-label="작업사례 목차">' +
+      '<button type="button" data-case-section="case-overview">프로젝트 소개</button>' +
+      '<button type="button" data-case-section="case-outputs">작업 구성</button>' +
+      '<button type="button" data-case-section="case-colors">색상 구성</button></nav><div class="case-body">' +
+      '<section id="case-overview"><p class="eyebrow">OVERVIEW</p><h2>프로젝트 소개</h2><p>' + person.intro + '</p>' +
+      '<div class="case-note">작업 범위<br><strong>' + person.scope + '</strong></div></section>' +
+      '<section id="case-outputs"><p class="eyebrow">PROJECT DETAILS</p><h2>작업을 자세히 살펴보세요</h2>' +
+      '<div class="case-detail-art">' + art(person) + '</div><div class="case-outputs">' +
+      outputs.map(output => '<div><h3>' + output + '</h3><p>' + categoryName(person.category) + '</p></div>').join("") + '</div></section>' +
+      '<section id="case-colors"><p class="eyebrow">COLOR PALETTE</p><h2>작업 이미지의 색상 구성</h2>' +
+      '<p>예시 이미지에서 살펴볼 수 있는 주요 색상이에요.</p><div class="case-colors">' +
+      palettes[person.art].map(([label,hex]) => '<div><span style="background:' + hex + '"></span><strong>' + label + '</strong><small>' + hex + '</small></div>').join("") +
+      '</div></section></div></div><section class="project-banner case-contact"><div><h2>이런 디자인이 필요하다면?</h2>' +
+      '<p>디자이너와 필요한 작업에 관해 이야기해보세요.</p></div><div class="actions">' +
+      action("#chat/" + id,"디자이너와 채팅") + action("#request","프로젝트 의뢰","outline") + '</div></section></article>';
+    view.querySelectorAll("[data-case-section]").forEach(button => button.addEventListener("click", () => {
+      const section = view.querySelector("#" + button.dataset.caseSection);
+      section.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",block:"start"});
+      section.querySelector("h2").setAttribute("tabindex","-1");
+      section.querySelector("h2").focus({preventScroll:true});
+    }));
     return;
   }
   const settings = {
