@@ -20,7 +20,7 @@ const categoryIcons = [
 ];
 
 function categoryIllustration(index) {
-  return '<svg viewBox="0 0 96 96" aria-hidden="true" focusable="false" stroke-linecap="round" stroke-linejoin="round">' +
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 96 96" aria-hidden="true" focusable="false" stroke-linecap="round" stroke-linejoin="round">' +
     '<ellipse cx="48" cy="83" rx="29" ry="5" fill="#D7E7DE" opacity=".65"/>' +
     categoryIcons[index] + '</svg>';
 }
