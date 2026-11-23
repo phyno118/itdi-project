@@ -107,6 +107,13 @@ function art(person) {
 }
 
 function creativeCard(person, type) {
+  if (type === "portfolio") {
+    return '<article class="card portfolio-work"><a class="portfolio-image-link" href="#work/' + person.id +
+      '" aria-label="' + person.title + ' 작업사례 보기">' + art(person) + '</a><div class="card-body">' +
+      '<span class="tag">' + categoryName(person.category) + '</span><h3><a href="#work/' + person.id + '">' +
+      person.title + '</a></h3><p class="portfolio-author"><span aria-hidden="true">' + person.name.slice(0,1) +
+      '</span>' + person.name + '</p><p class="visually-hidden">' + person.scope + '</p></div></article>';
+  }
   const settings = {
     designers:[person.name, person.intro, "designer", "프로필 보기"],
     portfolio:[person.title, person.scope, "work", "작업사례 보기"],
@@ -114,7 +121,7 @@ function creativeCard(person, type) {
   };
   const [title, description, route, label] = settings[type];
   return '<article class="card">' + art(person) + '<div class="card-body"><span class="tag">' + categoryName(person.category) +
-    '</span><h3>' + title + '</h3>' + (type === "portfolio" ? '<p class="portfolio-author"><span aria-hidden="true">' + person.name.slice(0,1) + '</span>' + person.name + '</p>' : '') +
+    '</span><h3>' + title + '</h3>' +
     '<p>' + description + '</p><a class="text-link" href="#' + route + '/' + person.id +
     '" aria-label="' + title + ' ' + label + '">' + label + ' ↗</a></div></article>';
 }
