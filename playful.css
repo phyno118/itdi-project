@@ -171,3 +171,34 @@
   .section-heading { align-items: start; }
   .hero-art figcaption { min-height: 75px; padding: 13px 16px; }
 }
+.portfolio-page .page-head { max-width: none; padding: 8px 20px 24px; margin-bottom: 0; }
+.portfolio-page .page-head h1 { max-width: 580px; font-size: clamp(30px, 3.1vw, 43px); line-height: 1.18; margin-block: 13px; }
+.portfolio-page .page-head > p:last-child { font-size: 16px; }
+.portfolio-controls { padding: 4px 10px 28px; border-bottom: 1px solid var(--outline); }
+.portfolio-search { gap: 8px; }
+.portfolio-search input { min-height: 54px; border-radius: 999px; padding-inline: 22px; background: white; border-color: var(--outline); }
+.portfolio-filter-row { display: flex; gap: 20px; align-items: end; justify-content: space-between; margin-top: 17px; }
+.portfolio-chips { display: flex; flex-wrap: wrap; gap: 9px; }
+.portfolio-chips button { padding: 8px 15px; min-height: 40px; background: white; border: 1px solid var(--outline); border-radius: 999px; font-size: 13px; font-weight: 700; }
+.portfolio-chips button[aria-pressed="true"] { background: var(--brand-primary); color: white; box-shadow: 2px 2px 0 var(--outline); }
+.portfolio-chips button:hover { background: var(--brand-accent); color: var(--ink); }
+.portfolio-select { flex: 0 0 190px; font-size: 12px; }
+.portfolio-select select { font-size: 14px; min-height: 40px; }
+.portfolio-list-heading { display: flex; align-items: baseline; gap: 17px; padding: 28px 0 20px; }
+.portfolio-list-heading h2 { font-size: clamp(21px, 2vw, 27px); }
+.portfolio-list-heading p { color: var(--muted); font-size: 14px; }
+.portfolio-gallery .card-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px 20px; }
+.portfolio-gallery .work-art { aspect-ratio: 1.8; border-bottom: 1px solid var(--outline); }
+.portfolio-author { display: flex; align-items: center; gap: 8px; }
+.portfolio-author > span { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--brand-surface); color: var(--brand-text); font-size: 12px; font-weight: 700; }
+@media (max-width: 790px) {
+  .portfolio-filter-row { align-items: stretch; flex-direction: column; gap: 12px; }
+  .portfolio-select { flex: auto; max-width: 250px; }
+  .portfolio-gallery .card-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 510px) {
+  .portfolio-page .page-head { padding-inline: 0; }
+  .portfolio-controls { padding-inline: 0; }
+  .portfolio-gallery .card-grid { grid-template-columns: 1fr; }
+  .portfolio-list-heading { align-items: start; flex-direction: column; gap: 5px; }
+}

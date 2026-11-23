@@ -114,7 +114,8 @@ function creativeCard(person, type) {
   };
   const [title, description, route, label] = settings[type];
   return '<article class="card">' + art(person) + '<div class="card-body"><span class="tag">' + categoryName(person.category) +
-    '</span><h3>' + title + '</h3><p>' + description + '</p><a class="text-link" href="#' + route + '/' + person.id +
+    '</span><h3>' + title + '</h3>' + (type === "portfolio" ? '<p class="portfolio-author"><span aria-hidden="true">' + person.name.slice(0,1) + '</span>' + person.name + '</p>' : '') +
+    '<p>' + description + '</p><a class="text-link" href="#' + route + '/' + person.id +
     '" aria-label="' + title + ' ' + label + '">' + label + ' ↗</a></div></article>';
 }
 
@@ -124,11 +125,20 @@ function catalog(type, category = "") {
     designers:["DESIGNERS","디자이너 찾기","전문 분야와 대표 작업을 살펴보세요."],
     portfolio:["PORTFOLIO","포트폴리오","디자이너의 작업을 분야별로 살펴보세요."]
   };
-  view.innerHTML = heading(...content[type]) +
+  const isPortfolio = type === "portfolio";
+  const chips = [["","전체"],["0","로고·브랜딩"],["3","웹·UI/UX"],["1","편집·인쇄"],["5","패키지"],["6","일러스트"]];
+  view.innerHTML = (isPortfolio ? '<div class="portfolio-page">' +
+    heading("PORTFOLIO","좋은 디자인에서, 다음 프로젝트의 시작을.","다양한 디자이너의 작업에서 새로운 가능성을 발견해 보세요.").replace("디자인에서, 다음", "디자인에서,<br>다음") +
+    '<div class="portfolio-controls"><label class="field portfolio-search">작업 검색<input type="search" id="catalog-search" placeholder="어떤 디자인을 찾고 계신가요?"></label>' +
+    '<div class="portfolio-filter-row"><div class="portfolio-chips" aria-label="주요 디자인 분야">' +
+    chips.map(([value,label]) => '<button type="button" data-field="' + value + '" aria-pressed="' + (category === value) + '">' + label + '</button>').join("") +
+    '</div><label class="field portfolio-select">전체 분야<select id="catalog-category">' + categoryOptions(category) + '</select></label></div></div>' +
+    '<div class="portfolio-list-heading"><h2>다양한 작업을 만나보세요</h2><p id="portfolio-count"></p></div>'
+    : heading(...content[type]) +
     '<p class="notice">디자인 초안에 사용한 예시 데이터예요.</p><div class="filters">' +
     '<label class="field">검색<input type="search" id="catalog-search" placeholder="이름, 분야, 작업명 검색"></label>' +
-    '<label class="field">분야<select id="catalog-category">' + categoryOptions(category) + '</select></label></div>' +
-    '<div id="catalog-results" aria-live="polite" class="' + (type === "portfolio" ? "portfolio-gallery" : "") + '"></div>';
+    '<label class="field">분야<select id="catalog-category">' + categoryOptions(category) + '</select></label></div>') +
+    '<div id="catalog-results" aria-live="polite" class="' + (isPortfolio ? "portfolio-gallery" : "") + '"></div>' + (isPortfolio ? '</div>' : '');
   const search = view.querySelector("#catalog-search");
   const select = view.querySelector("#catalog-category");
   const results = view.querySelector("#catalog-results");
@@ -142,9 +152,17 @@ function catalog(type, category = "") {
     results.innerHTML = matches.length
       ? '<div class="card-grid">' + matches.map(person => creativeCard(person, type)).join("") + '</div>'
       : '<div class="empty"><h2>아직 예시 결과가 없어요</h2><p>검색어를 바꾸거나 전체 분야를 선택해보세요.</p></div>';
+    if (isPortfolio) {
+      view.querySelector("#portfolio-count").textContent = "예시 작업 " + matches.length + "개";
+      view.querySelectorAll("[data-field]").forEach(button => button.setAttribute("aria-pressed",String(button.dataset.field === select.value)));
+    }
   }
   search.addEventListener("input", filter);
   select.addEventListener("change", filter);
+  view.querySelectorAll("[data-field]").forEach(button => button.addEventListener("click", () => {
+    select.value = button.dataset.field;
+    filter();
+  }));
   filter();
 }
 
