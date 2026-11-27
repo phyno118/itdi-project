@@ -21,26 +21,27 @@
 .button:active { transform: none; }
 .button.outline { border-color: var(--line); }
 .button.primary { color: white; }
-.hero.home-screen { padding-block: 64px; background: radial-gradient(ellipse at 80% 10%, #245e51 0, transparent 55%), #103d33; color: white; }
+.hero.home-screen { padding-block: 64px; background: linear-gradient(115deg, #fff 25%, #f0faf6); color: var(--ink); border-bottom: 1px solid var(--line); }
 .hero-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: center; }
 .hero-content { padding: 0; background: transparent; border: 0; box-shadow: none; }
-.hero .badge { color: #cbebdf; font-size: 14px; font-weight: 600; }
+.hero .badge { color: var(--brand-text); font-size: 14px; font-weight: 600; }
 .hero .badge::before { background: var(--brand-primary); }
 .hero h1 { font-size: clamp(36px, 3.5vw, 48px); line-height: 1.22; margin-top: 20px; letter-spacing: -.045em; }
-.hero-description { color: #d3e4dd; font-size: 16px; line-height: 1.8; margin-top: 22px; }
+.hero h1 em { display: inline-block; font-size: 1.23em; line-height: 1.18; margin-top: 5px; font-weight: 800; }
+.hero-description { color: #58645f; font-size: 16px; line-height: 1.8; margin-top: 22px; }
 .hero-explore { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 20px; }
-.hero-explore a { font-size: 14px; color: white; text-decoration: underline; text-underline-offset: 5px; text-decoration-color: #ffffff60; }
+.hero-explore a { font-size: 14px; color: var(--ink); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: #b8cec3; }
 .hero-explore a:hover { text-decoration-color: var(--brand-primary); }
-.match-form { margin-top: 30px; padding: 18px 20px; border: 1px solid #fff; border-radius: 18px; background: white; color: var(--ink); box-shadow: 0 16px 40px #00170f26; }
+.match-form { margin-top: 30px; padding: 18px 20px; border: 1px solid #deebe4; border-radius: 18px; background: white; color: var(--ink); box-shadow: 0 12px 36px #254d3e0c; }
 .match-form label { font-size: 14px; }
 .match-form textarea { min-height: 72px; font-size: 16px; margin-block: 9px; }
 .match-actions { gap: 16px; }
 .match-actions small { font-size: 12px; color: var(--muted); }
 .quick-chips { margin-top: 18px; gap: 8px; }
-.quick-chips > span { color: #c8ddd4; font-size: 13px; }
-.quick-chips button { background: #ffffff0a; border-color: #ffffff35; color: #e6f5ed; font-size: 13px; padding: 6px 11px; }
+.quick-chips > span { color: var(--muted); font-size: 13px; }
+.quick-chips button { background: white; border-color: #d7e6de; color: #52645f; font-size: 13px; padding: 6px 11px; }
 .quick-chips button:hover, .quick-chips button[aria-pressed="true"] { background: var(--brand-primary); border-color: var(--brand-primary); color: white; }
-.hero-art { align-self: stretch; min-height: 440px; background: transparent; border: 0; box-shadow: none; border-radius: 24px; position: relative; }
+.hero-art { align-self: stretch; min-height: 440px; background: transparent; border: 0; box-shadow: 0 16px 40px #254d3e12; border-radius: 24px; position: relative; }
 .hero-art::before { display: none; }
 .hero-art img { min-height: 440px; height: 100%; aspect-ratio: auto; border-radius: 24px; object-position: 54% center; }
 .hero-art figcaption { position: absolute; left: 20px; right: 20px; bottom: 20px; min-height: 80px; padding: 16px 20px; border: 1px solid #ffffff85; border-radius: 16px; background: #fffffff2; color: var(--ink); }

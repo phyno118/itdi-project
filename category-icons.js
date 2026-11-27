@@ -21,6 +21,14 @@ const categoryIcons = [
 ];
 
 function categoryIllustration(index) {
+  // White silhouettes on the exact brand mint; dark mint is reserved for inner detail.
+  const whiteBody = new Set([0,2,4,5,7,8,10,11,12,15]);
+  const innerColor = ["#C2ECDF","#fff","#176B59","#fff","#C2ECDF","#C2ECDF","#fff","#176B59","#C2ECDF","#fff","#176B59","#176B59","#176B59","#fff","#fff","#fff"];
+  const glyph = categoryIcons[index].replace(/#27B597|#fff|#1D7766|#8BDBC4/g, color => {
+    if (color === "#27B597") return whiteBody.has(index) ? "#fff" : "#176B59";
+    if (color === "#fff") return innerColor[index];
+    return color === "#8BDBC4" ? "#BBB0EA" : "#176B59";
+  });
   return '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 96 96" aria-hidden="true" focusable="false" stroke-linecap="round" stroke-linejoin="round">' +
-    '<rect x="8" y="8" width="80" height="80" rx="29" fill="#E7F4EE"/>' + categoryIcons[index] + '</svg>';
+    '<rect x="8" y="8" width="80" height="80" rx="25" fill="#27B597"/>' + glyph + '</svg>';
 }
