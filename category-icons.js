@@ -38,5 +38,5 @@ const categoryIcons = [
 
 function categoryIllustration(index) {
   return '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 48 48" aria-hidden="true" focusable="false">' +
-    '<g fill="none" stroke="#27B597" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">' + categoryIcons[index] + '</g></svg>';
+    '<g fill="none" stroke="#BBB0EA" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">' + categoryIcons[index].replaceAll('#E7F4EE', '#F1EEFA') + '</g></svg>';
 }
