@@ -58,7 +58,7 @@
 .category-heading p { font-size: 14px; }
 .category-grid { gap: 22px 12px; }
 .category { min-height: 132px; font-size: 14px; padding: 12px 4px; border-radius: 18px; }
-.category-all { border-color: var(--line); }
+.category-all { border-color: transparent; }
 .category-all:hover { background: #f0ecfa; border-color: #d8cef2; }
 .featured { background: #f7f9f8; }
 .card-grid, .featured .card-grid, .portfolio-gallery .card-grid { gap: 36px 26px; }
