@@ -71,7 +71,7 @@ function readSavedWorks() {
 }
 
 function updateSaveButtons() {
-  view.querySelectorAll("[data-save-work]").forEach(button => {
+  document.querySelectorAll("[data-save-work]").forEach(button => {
     const person = creatives.find(item => item.id === button.dataset.saveWork);
     const saved = savedWorks.has(person.id);
     button.setAttribute("aria-pressed", String(saved));
@@ -80,7 +80,7 @@ function updateSaveButtons() {
   });
 }
 
-view.addEventListener("click", event => {
+document.querySelector("#main").addEventListener("click", event => {
   const button = event.target.closest("[data-save-work]");
   if (!button) return;
   const id = button.dataset.saveWork;
@@ -514,9 +514,11 @@ function tradePage(type, id) {
     summary + '<div class="actions">' + action("#chat/" + key, "대화 보기") + action("#quote/" + key, "견적서 보기", "outline") + '</div>';
 }
 
-function account(type) {
+function account(type, role = "") {
   const signup = type === "signup";
-  view.innerHTML = heading("ACCOUNT",signup ? "회원가입" : "로그인","계정 화면을 확인할 수 있는 시안이에요.") +
+  const roleName = {designer:"디자이너",studio:"스튜디오"}[role];
+  view.innerHTML = heading("ACCOUNT",signup ? (roleName ? roleName + "로 시작하기" : "회원가입") : "로그인",
+    signup && roleName ? roleName + " 가입 안내 화면이에요. 작업을 소개하고 새로운 프로젝트를 만나보세요." : "계정 화면을 확인할 수 있는 시안이에요.") +
     '<p class="notice">로그인·회원가입은 베타 사이트에서 제공돼요. 이 초안에서는 계정 정보를 받지 않아요.</p>' +
     '<div class="actions">' + action("#my-projects","내 프로젝트 둘러보기","outline") + action("#request","프로젝트 의뢰해보기") + '</div>';
 }
@@ -558,6 +560,11 @@ function route(initial = false) {
   const isHome = name === "" || name === "home";
   home.hidden = !isHome;
   view.hidden = isHome;
+  if (isHome) {
+    savedWorks = readSavedWorks();
+    updateSaveButtons();
+    renderHomeProjects();
+  }
   closeMenu();
   document.querySelectorAll(".main-nav a").forEach(link => {
     const target = link.hash.slice(1);
@@ -574,7 +581,7 @@ function route(initial = false) {
     else if (name === "project") projectDetail(id);
     else if (name === "inquiry") inquiry(id,mode);
     else if (["chat","quote","order"].includes(name)) tradePage(name,id);
-    else if (name === "login" || name === "signup") account(name);
+    else if (name === "login" || name === "signup") account(name,id);
     else if (name === "info") info(id);
     else if (name === "registered" && draftProjects.some(project => project.id === id)) {
       view.innerHTML = heading("PROJECT REQUEST","의뢰가 등록됐어요","이 탭의 내 프로젝트 목록에서 확인할 수 있어요.") +
@@ -596,6 +603,23 @@ document.querySelector("#category-grid").innerHTML = categories.map(([label], in
   categoryIllustration(index) + '</span><span>' + label + '</span></a>').join("") +
   '<a class="category category-all" href="#services"><span class="cat-icon">' + categoryIllustration(15) + '</span><span>전체보기</span></a>';
 document.querySelector("#featured-grid").innerHTML = creatives.map(person => creativeCard(person,"designers")).join("");
+function renderHomePortfolio(field = "") {
+  const matches = creatives.filter(person => field === "" || [person.category, ...person.extra].includes(Number(field)));
+  document.querySelector("#home-portfolio-grid").innerHTML = matches.length
+    ? '<div class="card-grid">' + matches.map(person => creativeCard(person,"portfolio")).join("") + '</div>'
+    : '<div class="empty"><h3>이 분야의 예시 작업은 준비 중이에요</h3><p>다른 분야의 작업을 둘러보세요.</p>' + action("#portfolio/" + field,"포트폴리오에서 보기","outline") + '</div>';
+  document.querySelectorAll("[data-home-field]").forEach(button => button.setAttribute("aria-pressed",String(button.dataset.homeField === field)));
+}
+function renderHomeProjects() {
+  const projects = [...draftProjects.filter(project => project.selected === undefined), ...exampleProjects].slice(0,3);
+  document.querySelector("#home-project-grid").innerHTML = projects.map(project =>
+    '<article class="home-project-card"><div class="home-project-meta"><span class="tag">' + categoryName(project.category) +
+    '</span><span>' + (project.id.startsWith("draft-") ? "내 의뢰 · 모집 중" : "예시 의뢰") + '</span></div><h3><a href="#project/' + escapeHtml(project.id) + '">' +
+    escapeHtml(project.title) + '</a></h3><p>' + escapeHtml(project.description) + '</p><div class="home-project-bottom"><strong>' + projectBudget(project) +
+    '</strong><span>' + (project.date ? '희망 납품일 ' + escapeHtml(project.date) : '일정 협의') + '</span></div><a class="text-link" href="#project/' + escapeHtml(project.id) + '">의뢰 상세 보기</a></article>').join("");
+}
+document.querySelectorAll("[data-home-field]").forEach(button => button.addEventListener("click", () => renderHomePortfolio(button.dataset.homeField)));
+renderHomePortfolio();
 menu.addEventListener("click", () => menu.setAttribute("aria-expanded",String(navigation.classList.toggle("open"))));
 navigation.addEventListener("click", event => { if (event.target.closest("a")) closeMenu(); });
 document.querySelector(".skip").addEventListener("click", event => {
